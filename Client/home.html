@@ -7,30 +7,33 @@
   <link rel="stylesheet" href="app.css">
 </head>
 <body>
-  <header>
-    <nav class="navbar">
-      <div class="logo">Upskill Hub</div>
-      <ul class="nav-links">
-        <li><a href="home.html">Home</a></li>
-        <li><a href="signin.html">Sign In</a></li>
-        <li><a href="signup.html">Sign Up</a></li>
-        <div class="dropdown1">
-          <button class="dropbtn1">Categories</button>
-          <div class="dropdown-content1">
-            <a href="profile.html">Profile</a>
-            <a href="resume.html">Find Skills</a>
-            <a href="app.html">Recommendation</a>
-          </div>
-        </div>
-        <li>
-          <div class="search-container">
-            <input type="text" placeholder="Search..." />
-            <button>Search</button>
-          </div>
-        </li>
-      </ul>
-    </nav>
-  </header>
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+/>
+<header>
+ <nav class="navbar">
+   <div class="logo">Upskill Hub</div>
+   <ul class="nav-links">
+     <li><a href="home.html">Home</a></li>
+     <li><a href="signin.html">Sign In</a></li>
+     <li><a href="signup.html">Sign Up</a></li>
+     <div class="dropdown1">
+       <button class="dropbtn1">Categories</button>
+       <div class="dropdown-content1">
+         <a href="resume.html">Find Skills</a>
+         <a href="app.html">Recommendation</a>
+         <a href="quiz.html">Attempt quiz</a>
+       </div>
+     </div>
+     <li>
+       <a href="profile.html" class="profile-icon" title="Profile">
+         <i class="fas fa-user" style="font-size: 30px; color: #a79d47;"></i>
+       </a>
+     </li>
+   </ul>
+ </nav>
+</header>
 
   <main>
     <section class="hero">
@@ -43,6 +46,9 @@
         <button class="cta-button" id="findSkills">
           <a href="resume.html" style="text-decoration: none;" class="restricted-link">Find Skills</a>
         </button>
+        <button class="cta-button" id="quiz">
+          <a href="quiz.html" style="text-decoration: none;" class="restricted-link">Attempt Quiz</a>
+        </button>
       </div>
     </section>
   </main>
@@ -51,6 +57,7 @@
     document.addEventListener("DOMContentLoaded", function () {
       const discoverRecommendationsBtn = document.getElementById("discoverRecommendations");
       const findSkillsBtn = document.getElementById("findSkills");
+      const quizBtn = document.getElementById("quiz");
 
       // Function to check if the user is logged in
       function isUserLoggedIn() {
@@ -69,6 +76,15 @@
 
       // Event listener for "Find Skills" button
       findSkillsBtn.addEventListener("click", function (event) {
+        if (!isUserLoggedIn()) {
+          event.preventDefault(); // Prevent the default link behavior
+          alert("You need to log in to access this feature.Redirecting to sign-up page");
+          window.location.href = "signup.html"; // Redirect to sign-in page
+        }
+      });
+
+
+      quizBtn.addEventListener("click", function (event) {
         if (!isUserLoggedIn()) {
           event.preventDefault(); // Prevent the default link behavior
           alert("You need to log in to access this feature.Redirecting to sign-up page");

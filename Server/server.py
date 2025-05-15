@@ -7,9 +7,11 @@ import os
 from flask import Flask, request, jsonify
 from sklearn.metrics.pairwise import cosine_similarity
 from flask_cors import CORS  # Import CORS
+from groq import Groq
 
 app = Flask(__name__)
 CORS(app)
+client = Groq(api_key="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")
 
 # Initialize global variables
 __skills = None
@@ -198,6 +200,66 @@ def compare_skills():
     }
 
     return jsonify(response), 200
+
+
+@app.route('/generate_quiz', methods=['POST'])
+def generate_quiz():
+    try:
+        data = request.get_json()
+        topic = data.get('topic', '')
+        difficulty = data.get('difficulty', 'medium')
+        num_questions = data.get('num_questions', 5)
+
+        if not topic:
+            return jsonify({'error': 'Topic is required'}), 400
+
+        prompt = f"""
+        Generate a {difficulty} difficulty quiz about {topic} with {num_questions} MCQs.
+        Respond with a JSON object with this format:
+
+        {{
+          "questions": [
+            {{
+              "question": "What is Python used for?",
+              "options": {{
+                "a": "Web development",
+                "b": "Data analysis",
+                "c": "Machine learning",
+                "d": "All of the above"
+              }},
+              "answer": "d",
+              "explanation": "Python is used in all of these areas."
+            }}
+          ]
+        }}
+        Respond with only valid JSON, without any markdown or extra text.
+        """
+
+        response = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model="deepseek-r1-distill-llama-70b",
+            temperature=0.7,
+            max_tokens=2000,
+            response_format={"type": "json_object"}
+        )
+
+        content = response.choices[0].message.content.strip()
+
+        # Remove markdown fences if any
+        if content.startswith("```json"):
+            content = content[len("```json"):].strip()
+        if content.endswith("```"):
+            content = content[:-3].strip()
+
+        quiz_data = json.loads(content)
+
+        # Return the actual questions list, not the full object
+        return jsonify({'questions': quiz_data['questions']})
+
+    except json.JSONDecodeError as e:
+        return jsonify({'error': 'Failed to parse quiz questions', 'details': str(e)}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     # Load skills and course data from the JSON, pickle files, and CSV

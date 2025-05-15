@@ -1,0 +1,348 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upskill Hub</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+/>
+<header>
+ <nav class="navbar">
+   <div class="logo">Upskill Hub</div>
+   <ul class="nav-links">
+     <li><a href="home.html">Home</a></li>
+     <li><a href="signin.html">Sign In</a></li>
+     <li><a href="signup.html">Sign Up</a></li>
+     <div class="dropdown1">
+       <button class="dropbtn1">Categories</button>
+       <div class="dropdown-content1">
+         <a href="resume.html">Find Skills</a>
+         <a href="app.html">Recommendation</a>
+         <a href="quiz.html">Attempt quiz</a>
+       </div>
+     </div>
+     <li>
+       <a href="profile.html" class="profile-icon" title="Profile">
+         <i class="fas fa-user" style="font-size: 30px; color: #a79d47;"></i>
+       </a>
+     </li>
+   </ul>
+ </nav>
+</header>
+
+    <style>
+    
+    .input-section {
+        background: #f5f5f5;
+        padding: 100px;  /* fixed */
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    input, select, button {
+        padding: 10px;
+        margin: 8px 0;
+        width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    button {
+        background: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s;
+    }
+
+    button:hover {
+        background: #45a049;
+    }
+
+    .question-block {
+        background: white;
+        padding: 20px; /* fixed */
+        border-radius: 8px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+     .options-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Add to your existing CSS */
+.options-list li {
+  position: relative;
+  padding-left: 28px; /* Space for radio button */
+  margin-bottom: 8px;
+}
+
+.options-list input[type="radio"] {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.option-label {
+  display: inline-block;
+  vertical-align: middle;
+}
+/* Add this new CSS rule */
+.options-list li label {
+  display: block;
+  position: relative;
+  padding-left: 28px;
+}
+
+.options-list li input[type="radio"] {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scale(1.2);
+  margin: 0;
+}
+
+    .explanation {
+        color: #666;
+        font-style: italic;
+        margin-top: 10px;
+        padding: 10px;
+        background: #f9f9f9;
+        border-radius: 4px;
+        display: none;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 20px;
+        display: none;
+    }
+
+    .error {
+        color: #d32f2f;
+        padding: 10px;
+        background: #ffebee;
+        border-radius: 4px;
+        margin-top: 10px;
+        display: none;
+    }
+
+    .correct {
+        background-color: #d4edda;
+        border-left: 5px solid #28a745;
+        padding-left: 10px;
+    }
+
+    .incorrect {
+        background-color: #f8d7da;
+        border-left: 5px solid #dc3545;
+        padding-left: 10px;
+    }
+</style>
+
+</head>
+<body>
+    <h1>Quiz Generator</h1>
+    
+    <div class="input-section">
+        <h1>Choose your own Quiz</h1>
+        <div>
+            <label for="topic">Topic:</label>
+            <input type="text" id="topic" placeholder="e.g., Python" required>
+        </div>
+        <div>
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+        </div>
+        <div>
+            <label for="numQuestions">Number of Questions:</label>
+            <input type="number" id="numQuestions" min="1" max="20" value="5">
+        </div>
+        <button id="generateButton">Generate Quiz</button>
+        <div id="error" class="error"></div>
+        <div id="loading" class="loading">Generating quiz... Please wait.</div>
+    </div>
+    
+    <div id="quiz-container"></div>
+    <button id="submitQuiz" style="display:none; margin-top: 20px;">Submit Answers</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('generateButton').addEventListener('click', generateQuiz);
+            document.getElementById('submitQuiz').addEventListener('click', submitQuiz);
+        });
+
+        let currentQuestions = [];
+
+        async function generateQuiz() {
+            const topic = document.getElementById('topic').value.trim();
+            const difficulty = document.getElementById('difficulty').value;
+            const numQuestions = document.getElementById('numQuestions').value;
+            const errorDiv = document.getElementById('error');
+            const loadingDiv = document.getElementById('loading');
+            const quizContainer = document.getElementById('quiz-container');
+            const submitBtn = document.getElementById('submitQuiz');
+
+            // Validate input
+            if (!topic) {
+                showError('Please enter a topic');
+                return;
+            }
+
+            // Clear previous results and show loading
+            quizContainer.innerHTML = '';
+            errorDiv.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            submitBtn.style.display = 'none';
+            submitBtn.disabled = false;
+            document.getElementById('generateButton').disabled = true;
+
+            try {
+                const response = await fetch('http://localhost:5002/generate_quiz', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        topic, 
+                        difficulty, 
+                        num_questions: parseInt(numQuestions) 
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to generate quiz');
+                }
+
+                const data = await response.json();
+
+                if (!data.questions || !Array.isArray(data.questions)) {
+                    throw new Error('Invalid quiz format received from server');
+                }
+
+                currentQuestions = data.questions; // store current questions for submission check
+                displayQuiz(currentQuestions);
+                submitBtn.style.display = 'block';
+
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                loadingDiv.style.display = 'none';
+                document.getElementById('generateButton').disabled = false;
+            }
+        }
+
+        function displayQuiz(questions) {
+            const quizContainer = document.getElementById('quiz-container');
+            quizContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const questionBlock = document.createElement('div');
+                questionBlock.className = 'question-block';
+                questionBlock.dataset.correctAnswer = question.answer || '';  // Store correct answer
+                
+                const questionText = document.createElement('p');
+                questionText.innerHTML = `<strong>Q${index + 1}:</strong> ${question.question}`;
+                questionBlock.appendChild(questionText);
+
+                const optionsList = document.createElement('ul');
+                optionsList.className = 'options-list';
+
+                if (question.options && typeof question.options === 'object') {
+                    Object.entries(question.options).forEach(([key, value]) => {
+                        const optionItem = document.createElement('li');
+
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.name = `question-${index}`;
+                        radio.value = key;
+                        radio.id = `q${index}-${key}`;
+
+                        const label = document.createElement('label');
+                        label.htmlFor = `q${index}-${key}`;
+                        label.textContent = `${key}) ${value}`;
+
+                        // Put radio input before label text
+                        label.insertBefore(radio, label.firstChild);
+
+                        optionItem.appendChild(label);
+                        optionsList.appendChild(optionItem);
+                    });
+                }
+
+                questionBlock.appendChild(optionsList);
+
+                if (question.explanation) {
+                    const explanation = document.createElement('div');
+                    explanation.className = 'explanation';
+                    explanation.textContent = `Explanation: ${question.explanation}`;
+                    questionBlock.appendChild(explanation);
+                }
+
+                quizContainer.appendChild(questionBlock);
+            });
+        }
+
+        function submitQuiz() {
+            const questionBlocks = document.querySelectorAll('.question-block');
+            const submitBtn = document.getElementById('submitQuiz');
+            let score = 0;
+
+            questionBlocks.forEach(block => {
+                const correctAnswer = block.dataset.correctAnswer;
+                const explanationDiv = block.querySelector('.explanation');
+
+                // Find selected option
+                const selectedOption = block.querySelector('input[type="radio"]:checked');
+
+                // Reset styles
+                block.classList.remove('correct', 'incorrect');
+
+                if (!selectedOption) {
+                    block.classList.add('incorrect');
+                } else if (selectedOption.value === correctAnswer) {
+                    block.classList.add('correct');
+                    score++;
+                } else {
+                    block.classList.add('incorrect');
+                }
+
+                if (explanationDiv) {
+                    explanationDiv.style.display = 'block';
+                }
+            });
+
+            alert(`You scored ${score} out of ${questionBlocks.length}`);
+
+            // Disable submit button after submission
+            submitBtn.disabled = true;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
+
