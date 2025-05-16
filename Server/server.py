@@ -83,7 +83,7 @@ def load_saved_skills():
 
     # Load course data from CSV
     try:
-        __df = pd.read_csv("./artifacts/Online_courses.csv")
+        __df = pd.read_csv("./artifacts/Online_Courses.csv")
         print(f"Successfully loaded course data from Online_courses.csv.")
 
         # Clean the 'Skills' column: remove NaN and empty strings
