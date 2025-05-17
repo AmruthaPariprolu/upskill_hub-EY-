@@ -55,9 +55,9 @@ input:focus, textarea:focus {
 }
 .button-container {
   display: flex;
-  gap: 50px; /* Adds spacing between buttons */
-  justify-content: center; /* Center align the buttons */
-  margin-top: 20px; /* Adds some spacing from other elements */
+  gap: 50px; 
+  justify-content: center; 
+  margin-top: 20px; 
 }
 button {
   padding: 10px 15px;
