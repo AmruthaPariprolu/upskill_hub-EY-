@@ -1,28 +1,28 @@
-# Python
+
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Node.js
+
 node_modules/
 
-# Environment
+
 .env
 
-# Artifacts (keep only CSV files)
+
 artifacts/*
 !artifacts/Online_Courses.csv
 !artifacts/skills.csv
 !artifacts/skill_columns.csv
 
-# Uploads
+
 uploads/
 
-# Pickle files (exclude all)
+
 *.pickle
 *.pkl
 
-# Notebooks
+
 *.ipynb
 
