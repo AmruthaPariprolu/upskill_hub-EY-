@@ -9,7 +9,7 @@ node_modules/
 
 
 .env
-Backend/routes/.env
+Backend/.env
 
 artifacts/*
 !artifacts/Online_Courses.csv
